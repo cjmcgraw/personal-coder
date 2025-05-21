@@ -86,6 +86,6 @@ volumes:
     driver_opts:
       type: none
       o: ro
-      device: ${RAG_CODE_BASE:?err}
+      device: ${RAG_CODE_BASE:?Please set RAG_CODE_BASE environment variable to your codebase path}
   elasticsearch_data:
   webui_data:
