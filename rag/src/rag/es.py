@@ -495,9 +495,15 @@ def get_index_stats() -> Dict[str, Any]:
         body={
             "size": 0,
             "aggs": {
-                "unique_files": {
+                "file_counts": {
                     "cardinality": {
                         "field": "metadata.file_path"
+                    }
+                },
+                "unique_files": {
+                    "terms": {
+                        "field": "metadata.file_path",
+                        "size": 5000,
                     }
                 }
             }
@@ -506,7 +512,8 @@ def get_index_stats() -> Dict[str, Any]:
 
     return {
         "total_documents": count["count"],
-        "unique_files": file_count_agg["aggregations"]["unique_files"]["value"],
+        "file_counts": file_count_agg["aggregations"]["file_counts"]["value"],
+        "unique_files": {record['key']: record['doc_count'] for record in file_count_agg["aggregations"]["unique_files"]['buckets']},
         "index_size": stats["indices"][CODE_INDEX_NAME]["total"]["store"]["size_in_bytes"],
         "index_size_human": f"{stats["indices"][CODE_INDEX_NAME]["total"]["store"]["size_in_bytes"] * 1e-6:,.2f} mb",
         "stats_by_tokenizer": tokenizer_stats

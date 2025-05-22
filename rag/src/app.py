@@ -402,6 +402,7 @@ async def background_rag(runid, force=False):
         running = False
 
 
+
 # Testing endpoints
 @app.get("/test/embeddings")
 def test_embeddings(text: str):
