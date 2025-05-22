@@ -43,7 +43,8 @@ DEFAULT_MAPPING = {
                     "line_start": {"type": "integer"},
                     "line_end": {"type": "integer"},
                     "source": {"type": "keyword"},  # tokenizer source (tree-sitter, regex, etc.)
-                    "kind": {"type": "keyword"}      # token kind (function, class, method, etc.)
+                    "kind": {"type": "keyword"},      # token kind (function, class, method, etc.)
+                    "indexed_at": {"type": "date", "format": "epoch_second"}
                 }
             },
             "vector": {
@@ -122,7 +123,8 @@ class BulkIndexer:
                         "line_start": record.line_start,
                         "line_end": record.line_end,
                         "source": getattr(record, 'source', 'unknown'),
-                        "kind": getattr(record, 'kind', '')
+                        "kind": getattr(record, 'kind', ''),
+                        "indexed_at": int(time.time())
                     }
                 }
             })
@@ -488,12 +490,42 @@ def get_index_stats() -> Dict[str, Any]:
     count = es_client.count(index=CODE_INDEX_NAME)
     tokenizer_stats = get_tokenizer_stats()
     
+    # Get file count
+    file_count_agg = es_client.search(
+        index=CODE_INDEX_NAME,
+        body={
+            "size": 0,
+            "aggs": {
+                "unique_files": {
+                    "cardinality": {
+                        "field": "metadata.file_path"
+                    }
+                }
+            }
+        }
+    )
+    
     return {
         "total_documents": count["count"],
+        "unique_files": file_count_agg["aggregations"]["unique_files"]["value"],
         "index_size": stats["indices"][CODE_INDEX_NAME]["total"]["store"]["size_in_bytes"],
         "index_size_human": stats["indices"][CODE_INDEX_NAME]["total"]["store"]["size"],
         "stats_by_tokenizer": tokenizer_stats
     }
+
+
+def clear_index() -> bool:
+    """Delete and recreate the index. USE WITH CAUTION!"""
+    try:
+        if es_client.indices.exists(index=CODE_INDEX_NAME):
+            es_client.indices.delete(index=CODE_INDEX_NAME)
+            log.warning(f"Deleted index '{CODE_INDEX_NAME}'")
+        
+        ensure_index_exists()
+        return True
+    except Exception as e:
+        log.error(f"Error clearing index: {e}")
+        return False
 
 
 # Backward compatibility function
