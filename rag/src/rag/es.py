@@ -7,7 +7,7 @@ import pydantic
 import elasticsearch
 import elasticsearch.helpers
 
-from . import CodeDocument
+from .. import CodeDocument
 
 log = logging.getLogger(__name__)
 

@@ -4,7 +4,7 @@ import logging
 import time
 import os
 
-from . import CodeDocument
+from .. import CodeDocument
 
 logger = logging.getLogger(__name__)
 

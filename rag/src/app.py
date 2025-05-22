@@ -11,7 +11,7 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 import fastapi
 import numpy as np
 
-from . import ollama_util
+from .rag import ollama_util
 from .rag import tokenizers
 
 log = logging.getLogger(__name__)
