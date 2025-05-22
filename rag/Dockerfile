@@ -8,7 +8,7 @@ RUN --mount=type=cache,sharing=locked,target=/var/lib/apt/lists \
 
 
 WORKDIR /workdir
-HEALTHCHECK --timeout=1s --interval=10s --retries=3 --start-period=10s CMD ["curl", "-f", "http://localhost:8080/"]
+HEALTHCHECK --timeout=1s --interval=10s --retries=3 --start-period=10s CMD ["curl", "-f", "http://localhost:8080/health"]
 
 # Install Python dependencies
 COPY requirements.txt .
