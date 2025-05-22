@@ -12,6 +12,7 @@ OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://ollama:11434")
 RAG_URL = os.environ.get("RAG_URL", "http://rag:8000")
 CODE_EXPERT_MODELS = os.environ.get("CODE_EXPERT_MODEL", "code-expert:latest,gemma3:4b").split(",")
 
+
 @app.route('/api/<path:subpath>', methods=['GET', 'POST', 'PUT', 'DELETE'])
 def ollama_proxy(subpath):
     """Handle paths with /ollama prefix that OpenWebUI uses"""
@@ -38,6 +39,7 @@ def ollama_proxy(subpath):
     except Exception as e:
         logger.error(f"Error proxying /ollama request: {str(e)}")
         return jsonify({"error": str(e)}), 500
+
 
 # Special case for generate with RAG enhancement
 @app.route('/api/generate', methods=['POST'])
@@ -112,33 +114,6 @@ Using the code snippets above, please answer this question:
         logger.error(f"Error processing /ollama/api/generate: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
-# Catch-all handler for direct API endpoints (without /ollama prefix)
-@app.route('/api/<path:subpath>', methods=['GET', 'POST', 'PUT', 'DELETE'])
-def direct_api_proxy(subpath):
-    url = f"{OLLAMA_URL}/api/{subpath}"
-    logger.info(f"Proxying direct API request to {url}")
-    
-    try:
-        resp = requests.request(
-            method=request.method,
-            url=url,
-            headers={key: value for key, value in request.headers if key != 'Host'},
-            data=request.get_data(),
-            cookies=request.cookies,
-            params=request.args,
-            stream=True
-        )
-        
-        return Response(
-            stream_with_context(resp.iter_content(chunk_size=1024)),
-            status=resp.status_code,
-            content_type=resp.headers.get('Content-Type', 'application/json')
-        )
-    except Exception as e:
-        logger.error(f"Error proxying direct API request: {str(e)}")
-        return jsonify({"error": str(e)}), 500
-
-# Debug endpoint
 @app.route('/debug', methods=['GET'])
 def debug():
     """Debug endpoint to test connectivity"""

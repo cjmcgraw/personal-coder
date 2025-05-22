@@ -4,6 +4,8 @@ services:
     build: ./ollama
     volumes:
       - ./.models:/ollama-models
+    environment:
+      REQUIRED_MODELS: "all-minilm:l6-v2,code-expert:latest,gemma3:4b"
     deploy:
       resources:
         reservations:
@@ -20,6 +22,9 @@ services:
       - 8999:8080
     environment:
       OLLAMA_BASE_URL: http://rag-proxy:3000
+    depends_on:
+      rag-proxy:
+        condition: service_healthy
 
   rag-proxy:
     build: ./rag-proxy
@@ -32,8 +37,13 @@ services:
     ports:
       - "3000:3000"  # Optional - exposed for debugging
     depends_on:
-      - ollama
-      - rag
+      rag:
+        condition: service_healthy
+      ollama:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.12.0
@@ -47,7 +57,6 @@ services:
       - path.repo=/usr/share/elasticsearch/data
     volumes:
       - elasticsearch_data:/usr/share/elasticsearch/data
-
     ulimits:
       memlock:
         soft: -1
@@ -55,7 +64,6 @@ services:
       nofile:
         soft: 65536
         hard: 65536
-
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9200"]
       interval: 10s
@@ -65,7 +73,11 @@ services:
   rag:
     build: ./rag
     volumes:
-      - external_code:/code:ro  # Mount your codebase as read-only
+      - ./rag:/workdir
+      - type: bind
+        source: ${RAG_CODE_BASE}
+        target: /code
+        read_only: true
     environment:
       - OLLAMA_HOST=http://ollama:11434
       - ELASTICSEARCH_HOST=http://elasticsearch:9200
@@ -74,18 +86,13 @@ services:
       - CODE_DIR=/code
     ports:
       - "8000:8000"
+      - "5678:5678"
     depends_on:
       elasticsearch:
         condition: service_healthy
       ollama:
-        condition: service_started
+        condition: service_healthy
 
 volumes:
-  external_code:
-    driver: local
-    driver_opts:
-      type: none
-      o: ro
-      device: ${RAG_CODE_BASE:?Please set RAG_CODE_BASE environment variable to your codebase path}
   elasticsearch_data:
   webui_data:

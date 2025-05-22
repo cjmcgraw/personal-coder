@@ -1,19 +1,21 @@
-FROM python:3.10-slim
+FROM python:3.13
 
-WORKDIR /app
+RUN --mount=type=cache,sharing=locked,target=/var/lib/apt/lists \
+    --mount=type=cache,sharing=locked,target=/var/cache/apt,type=cache \
+    rm -f /etc/apt/apt.conf.d/docker-clean \
+    && apt-get update -yqq \
+    && apt-get install -yqq curl build-essential telnet iputils-ping jq vim
 
-# Install system dependencies
-RUN apt-get update && \
-    apt-get install -y curl build-essential && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+
+WORKDIR /workdir
+HEALTHCHECK --timeout=1s --interval=10s --retries=3 --start-period=10s CMD ["curl", "-f", "http://localhost:8080/"]
 
 # Install Python dependencies
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install  -r requirements.txt
 
 # Copy application code
-COPY . .
+COPY src ./src
 
 # Run the service
-CMD ["python", "main.py"]
+ENTRYPOINT ["python", "-m", "debugpy", "--listen", "0.0.0.0:5678", "-m", "fastapi", "dev", "--host", "0.0.0.0", "--port", "8000", "--reload", "src/app.py"]
