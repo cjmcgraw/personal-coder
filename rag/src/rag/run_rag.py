@@ -176,7 +176,7 @@ if __name__ == '__main__':
         stream=sys.stdout,
     )
     
-    from .. import CodeDocument, CodeChunk
+    from . import CodeDocument
     from . import es
     from . import tokenizers
     from . import ollama_util

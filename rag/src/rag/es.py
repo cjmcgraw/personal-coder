@@ -6,9 +6,8 @@ import os
 
 import elasticsearch
 import elasticsearch.helpers
-import numpy as np
 
-from .. import CodeDocument
+from . import CodeDocument
 
 log = logging.getLogger(__name__)
 
@@ -122,7 +121,7 @@ class BulkIndexer:
                         "repo": record.repo,
                         "line_start": record.line_start,
                         "line_end": record.line_end,
-                        "source": getattr(record, 'source', 'unknown'),
+                        "source": record.source,
                         "kind": getattr(record, 'kind', ''),
                         "indexed_at": int(time.time())
                     }
@@ -504,12 +503,12 @@ def get_index_stats() -> Dict[str, Any]:
             }
         }
     )
-    
+
     return {
         "total_documents": count["count"],
         "unique_files": file_count_agg["aggregations"]["unique_files"]["value"],
         "index_size": stats["indices"][CODE_INDEX_NAME]["total"]["store"]["size_in_bytes"],
-        "index_size_human": stats["indices"][CODE_INDEX_NAME]["total"]["store"]["size"],
+        "index_size_human": f"{stats["indices"][CODE_INDEX_NAME]["total"]["store"]["size_in_bytes"] * 1e-6:,.2f} mb",
         "stats_by_tokenizer": tokenizer_stats
     }
 

@@ -310,6 +310,7 @@ async def get_query_stats():
         stats = es.get_index_stats()
         return stats
     except Exception as e:
+        log.exception(e)
         log.error(f"Failed to get stats: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 

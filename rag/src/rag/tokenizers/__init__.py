@@ -6,6 +6,8 @@ import time
 import os
 from typing import Iterator
 
+from .. import Token
+
 import pydantic
 
 # Configure logging
@@ -14,17 +16,6 @@ log = logging.getLogger(__name__)
 
 dir = pathlib.Path(__file__).parent
 
-
-# Token model at the very top
-class Token(pydantic.BaseModel):
-    file_path: pathlib.Path
-    file_type: str
-    repo: str
-    line_start: int
-    line_end: int
-    content: str
-    source: str
-    kind: str = ""
 
 # I am feeling fucking loco. Its like this. Tokenize the fuck outta the documents and use
 # what contexts make sense and dont. Just keep adding contexts until you're good

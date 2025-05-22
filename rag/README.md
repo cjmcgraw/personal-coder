@@ -1,5 +1,3 @@
-Here's a README.md formatted specifically for the RAG container:
-
 # Code RAG Service
 
 A high-performance Retrieval-Augmented Generation (RAG) service for semantic code search. This service indexes your codebase using advanced tokenization and embeddings, enabling intelligent code discovery through natural language queries.

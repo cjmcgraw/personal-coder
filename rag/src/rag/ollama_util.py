@@ -1,10 +1,8 @@
 import requests
-import traceback
 import logging
 import time
 import os
 
-from .. import CodeDocument
 
 logger = logging.getLogger(__name__)
 
