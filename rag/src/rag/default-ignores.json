@@ -1,0 +1,88 @@
+{
+  "python": [
+    "__pycache__/",
+    "*.pyc",
+    "*.pyo",
+    "*.pyd",
+    ".Python",
+    "pip-log.txt",
+    "pip-delete-this-directory.txt",
+    ".tox/",
+    ".coverage",
+    ".coverage.*",
+    ".cache",
+    ".pytest_cache/",
+    "nosetests.xml",
+    "coverage.xml",
+    "*.cover",
+    ".hypothesis/",
+    ".mypy_cache/",
+    ".dmypy.json",
+    "dmypy.json",
+    ".pyre/",
+    "*.egg-info/",
+    ".eggs/",
+    "*.log"
+  ],
+  "virtualenv": [
+    "env/",
+    "venv/",
+    "ENV/",
+    ".venv",
+    ".env"
+  ],
+  "vcs": [
+    ".git/",
+    ".svn/",
+    ".hg/"
+  ],
+  "ide": [
+    ".idea/",
+    ".vscode/",
+    "*.swp",
+    "*.swo",
+    "*~"
+  ],
+  "os": [
+    ".DS_Store",
+    "Thumbs.db",
+    "desktop.ini"
+  ],
+  "javascript": [
+    "node_modules/",
+    "bower_components/",
+    "jspm_packages/",
+    "npm-debug.log*",
+    "yarn-debug.log*",
+    "yarn-error.log*"
+  ],
+  "build": [
+    "dist/",
+    "build/",
+    "target/",
+    "out/",
+    "bin/",
+    "obj/"
+  ],
+  "database": [
+    "*.sqlite",
+    "*.sqlite3",
+    "*.db",
+    "*.db3"
+  ],
+  "archives": [
+    "*.zip",
+    "*.tar",
+    "*.tar.gz",
+    "*.tgz",
+    "*.rar",
+    "*.7z"
+  ],
+  "temporary": [
+    "*.tmp",
+    "*.temp",
+    "*.bak",
+    "*.backup",
+    "*.old"
+  ]
+}

@@ -44,6 +44,39 @@ services:
       elasticsearch:
         condition: service_healthy
 
+  rag:
+    build: ./rag
+    volumes:
+      - ./rag:/workdir
+      - type: bind
+        source: ${RAG_CODE_BASE}
+        target: /code
+        read_only: true
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+      - ELASTICSEARCH_HOST=http://elasticsearch:9200
+      - ELASTICSEARCH_INDEX=code-embeddings
+      - AUTO_INGEST_ON_STARTUP=true
+      - CODE_DIR=/code
+    ports:
+      - "8000:8000"
+      - "5678:5678"
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+      ollama:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  redis:
+    image: redis:8-alpine
+    command: redis-server --save "" --appendonly no
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 1s
+      retries: 3
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.12.0
@@ -69,30 +102,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
-
-  rag:
-    build: ./rag
-    volumes:
-      - ./rag:/workdir
-      - type: bind
-        source: ${RAG_CODE_BASE}
-        target: /code
-        read_only: true
-    environment:
-      - OLLAMA_HOST=http://ollama:11434
-      - ELASTICSEARCH_HOST=http://elasticsearch:9200
-      - ELASTICSEARCH_INDEX=code-embeddings
-      - AUTO_INGEST_ON_STARTUP=true
-      - CODE_DIR=/code
-    ports:
-      - "8000:8000"
-      - "5678:5678"
-    depends_on:
-      elasticsearch:
-        condition: service_healthy
-      ollama:
-        condition: service_healthy
-
 volumes:
   elasticsearch_data:
   webui_data:

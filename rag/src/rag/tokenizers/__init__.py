@@ -67,9 +67,10 @@ def tokenize(*documents, limit: set[str]=None) -> Iterator[Token]:
         for tokenizer in tokenizers.values():
             if not limit or tokenizer.name in limit:
                 log.info(f"  Using {tokenizer.name} tokenizer")
+                i = 0
                 for i, token in enumerate(tokenizer.tokenize(file_path)):
                     yield token
-                log.debug(f"  {tokenizer.name} generated tokens={i} from {file_path} in {time.time() - t:,.5f}s")
+                log.debug(f"  {tokenizer.name} generated tokens={i + 1} from {file_path} in {time.time() - t:,.5f}s")
         
 
 

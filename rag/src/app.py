@@ -1,3 +1,6 @@
+from uuid import uuid4
+import subprocess
+import asyncio
 import pathlib
 import logging
 import json
@@ -87,3 +90,39 @@ def test_process_file(filepath: str, tokenizer: str=None):
             iter([buf.getvalue()]),
             media_type='text/plain'
         )
+
+@app.post("/ingest-code-base")
+def ingest_code_base(force: bool=False, background_tasks: fastapi.BackgroundTasks=None):
+    runid = uuid4().hex
+    background_tasks.add_task(background_rag, runid=runid, force=force)
+    return dict(
+        message="started background task",
+        runid=runid
+    )
+
+
+running = False
+async def background_rag(runid, force=False):
+    prefix = f"({runid=}):background_rag - "
+    global running
+    if running:
+        await asyncio.sleep(0.1)
+        if running:
+            log.error(f"{prefix} cannot start task. Its already running!")
+            raise ValueError(f"{prefix} cannot start task. Its already running!")
+
+    cmd = f"cd /workdir && python -u -m src.rag.run_rag --runid {runid}"
+    if force:
+        cmd += " --force-reload"
+
+    running = True
+    try:
+        await asyncio.sleep(0.250)
+        log.info(f"{prefix} running command: {cmd}")
+        subprocess.run(cmd, shell=True, check=True, stdout=sys.stdout, stderr=sys.stderr)
+        log.info(f"{prefix} successfully finished command: {cmd}")
+    except Exception as err:
+        log.error(f"{prefix} rag process unexpectedly error {cmd=}!")
+        log.error(err)
+    finally:
+        running = False
