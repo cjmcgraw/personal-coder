@@ -21,15 +21,17 @@ services:
     ports:
       - 8999:8080
     environment:
-      OLLAMA_BASE_URL: http://rag-proxy:3000
+      OLLAMA_BASE_URL: http://llm-proxy:3000
     depends_on:
-      rag-proxy:
+      ollama:
+        condition: service_healthy
+      llm-proxy:
         condition: service_healthy
 
-  rag-proxy:
-    build: ./rag-proxy
+  llm-proxy:
+    build: ./llm-proxy
     volumes:
-      - ./rag-proxy:/app
+      - ./llm-proxy:/app
     environment:
       - OLLAMA_URL=http://ollama:11434
       - RAG_URL=http://rag:8000
