@@ -36,6 +36,7 @@ services:
       - CODE_EXPERT_MODEL=code-expert:latest,gemma3:4b  # Models that should use RAG
     ports:
       - "3000:3000"  # Optional - exposed for debugging
+      - "5679:5679"
     depends_on:
       rag:
         condition: service_healthy
